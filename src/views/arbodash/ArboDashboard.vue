@@ -1,5 +1,33 @@
 <template>
     <div class="page-dashboard">
+      <form @submit.prevent="submitForm">
+        <div class="field">
+          <label class="label">Start Date</label>
+          <div class="control">
+            <input class="input" type="text" placeholder="Start Date" v-model="start_date">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">End Date</label>
+          <div class="control">
+            <input class="input" type="text" placeholder="End Date" v-model="end_date">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="checkbox">Positive Only</label>
+
+            <input type="checkbox" >
+        </div>
+
+        <div class="field">
+          <div class="control">
+            <button class="button is-success">Submit</button>
+          </div>
+        </div>
+
+      </form>
       <div class="columns is-mobile is-centered">
         <div class="column">
           <p>
@@ -19,16 +47,16 @@
 
         <div class="column">
 
-          <MapLeaf :id_map="1"></MapLeaf>
+          <MapLeaf :id_map="1" :data_query="gbif_rows"></MapLeaf>
         </div>
-        <div class="column">
+<!--        <div class="column">-->
 
-          <MapLeaf :id_map="2"></MapLeaf>
-        </div>
+<!--          <MapLeaf :id_map="2"></MapLeaf>-->
+<!--        </div>-->
 
-        <div class="column">
-          <MapLeaf :id_map="3"></MapLeaf>
-        </div>
+<!--        <div class="column">-->
+<!--          <MapLeaf :id_map="3"></MapLeaf>-->
+<!--        </div>-->
       </div>
 
       <div class="columns">
@@ -72,22 +100,35 @@ export default {
       mos_cols: [],
       mos_rows: [],
       gbif_cols: [],
-      gbif_rows: []
+      gbif_rows: [],
+      start_date: "",
+      end_date: ""
 
     }
   },
   mounted() {
-    this.getGBIF()
-    this.getWeather()
-    this.getMos()
+    // this.getGBIF()
+    // this.getWeather()
+    // this.getMos()
 
   },
   methods: {
-    getGBIF() {
-      axios
-          .get('/api/v1/gbif/')
-          .then(response => {
+    submitForm() {
+      const formData = {
+        start_date: this.start_date,
+        end_date: this.end_date
+      }
 
+      this.getGBIF(formData)
+      this.getMos(formData)
+      this.getWeather(formData)
+
+    },
+    getGBIF(formData) {
+      axios
+          .get('/api/v1/gbif/', { params: formData} )
+          .then(response => {
+            console.log(response.data)
             this.gbif_cols = Object.keys(response.data[0])
 
             for (let i = 0; i < response.data.length; i++) {
@@ -100,9 +141,9 @@ export default {
           })
     },
 
-    getWeather() {
+    getWeather(formData) {
       axios
-          .get('/api/v1/weather/')
+          .get('/api/v1/weather/', formData)
           .then(response => {
 
             this.weather_cols = Object.keys(response.data[0])
@@ -116,9 +157,9 @@ export default {
             console.log(JSON.stringify(error))
           })
     },
-    getMos() {
+    getMos(formData) {
       axios
-          .get('/api/v1/mos/')
+          .get('/api/v1/mos/', formData)
           .then(response => {
 
             this.mos_cols = Object.keys(response.data[0])

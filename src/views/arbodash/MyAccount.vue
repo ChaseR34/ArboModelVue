@@ -25,6 +25,7 @@ export default {
                     this.$router.push('/')
                 })
                 .catch(error => {
+
                     if (error.response) {
                         console.log(JSON.stringify(error.response.data))
                     } else if (error.message) {
